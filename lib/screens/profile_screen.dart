@@ -13,26 +13,32 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  // --- PALETTE DE COULEURS EN MODE SOMBRE (iOS Dark Mode OLED) ---
-  static const Color _bgSurface = Color(0xFF000000); // Pure Black OLED
-  static const Color _cardBg = Color(0xFF1C1C1E); // Elevated Dark Card
-  static const Color _cardElevatedBg = Color(0xFF2C2C2E); // High-elevation Dark Container
+  // --- DÉTECTION DU THÈME ---
+  bool get _darkMode => Theme.of(context).brightness == Brightness.dark;
 
-  // Accents iOS System Dark
-  static const Color _primary = Color(0xFF0A84FF); // Blue iOS Dark
-  static const Color _primaryContainer = Color(0xFF003063); // Dark Primary Tint
-  static const Color _tertiary = Color(0xFF30D158); // Green iOS Dark
-  static const Color _tertiaryContainer = Color(0xFF0C3B18); // Dark Tertiary Tint
-  static const Color _secondary = Color(0xFF5E5CE6); // Purple/Indigo iOS Dark
-  static const Color _secondaryContainer = Color(0xFF252361); // Dark Secondary Tint
-  static const Color _error = Color(0xFFFF453A); // Red iOS Dark
+  // --- PALETTE DE COULEURS DYNAMIQUE (Dark & Light) ---
+  Color get _bgSurface => _darkMode ? const Color(0xFF000000) : const Color(0xFFF2F2F7);
+  Color get _cardBg => _darkMode ? const Color(0xFF1C1C1E) : Colors.white;
+  Color get _cardElevatedBg => _darkMode ? const Color(0xFF2C2C2E) : const Color(0xFFE5E5EA);
 
-  // Textes & Neutral Colors
-  static const Color _textPrimary = Colors.white;
-  static const Color _textSecondary = Color(0xFF8E8E93);
-  static const Color _outline = Color(0xFF636366);
-  static const Color _outlineVariant = Color(0xFF48484A);
-  static const Color _hairlineColor = Color(0xFF2C2C2E);
+  // Accents iOS
+  Color get _primary => const Color(0xFF0A84FF);
+  Color get _primaryContainer => _darkMode ? const Color(0xFF003063) : const Color(0xFFE5F0FF);
+
+  Color get _tertiary => const Color(0xFF30D158);
+  Color get _tertiaryContainer => _darkMode ? const Color(0xFF0C3B18) : const Color(0xFFE8F8EB);
+
+  Color get _secondary => const Color(0xFF5E5CE6);
+  Color get _secondaryContainer => _darkMode ? const Color(0xFF252361) : const Color(0xFFEBEBFA);
+
+  Color get _error => const Color(0xFFFF453A);
+
+  // Textes & Lignes
+  Color get _textPrimary => _darkMode ? Colors.white : Colors.black;
+  Color get _textSecondary => const Color(0xFF8E8E93);
+  Color get _outline => const Color(0xFF636366);
+  Color get _outlineVariant => _darkMode ? const Color(0xFF48484A) : const Color(0xFFD1D1D6);
+  Color get _hairlineColor => _darkMode ? const Color(0xFF2C2C2E) : const Color(0xFFE5E5EA);
 
   bool _isEditing = false;
 
@@ -66,7 +72,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final phone = widget.profile?['phone'] ?? "Non renseigné";
     final avatarUrl = widget.profile?['avatar_url'] as String?;
     final email = widget.user?.email ?? 'Non renseigné';
-    final role = widget.profile?['role'] ?? 'Développeur Full-Stack';
+    final role = widget.profile?['role'] ?? 'Elève ingénieur Full-Stack';
 
     return Scaffold(
       backgroundColor: _bgSurface,
@@ -79,7 +85,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
+                Text(
                   'Mon Profil',
                   style: TextStyle(
                     fontSize: 32,
@@ -152,7 +158,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     color: _tertiaryContainer,
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Text(
+                  child: Text(
                     'Vérifié',
                     style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: _tertiary),
                   ),
@@ -212,7 +218,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       padding: const EdgeInsets.only(left: 16.0),
       child: Text(
         title,
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 12,
           fontWeight: FontWeight.bold,
           color: _outline,
@@ -252,7 +258,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ? NetworkImage(avatarUrl)
                     : null,
                 child: avatarUrl == null || avatarUrl.isEmpty
-                    ? const Icon(Icons.person, size: 48, color: _textSecondary)
+                    ? Icon(Icons.person, size: 48, color: _textSecondary)
                     : null,
               ),
               Positioned(
@@ -274,7 +280,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           const SizedBox(height: 12),
           Text(
             name,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.bold,
               color: _textPrimary,
@@ -284,7 +290,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           const SizedBox(height: 2),
           Text(
             role,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w500,
               color: _primary,
@@ -293,7 +299,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           const SizedBox(height: 4),
           Text(
             email,
-            style: const TextStyle(fontSize: 13, color: _textSecondary),
+            style: TextStyle(fontSize: 13, color: _textSecondary),
           ),
         ],
       ),
@@ -338,11 +344,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
           const SizedBox(height: 4),
           Text(
             val,
-            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: _textPrimary),
+            style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: _textPrimary),
           ),
           Text(
             label,
-            style: const TextStyle(fontSize: 11, color: _outline),
+            style: TextStyle(fontSize: 11, color: _outline),
           ),
         ],
       ),
@@ -355,7 +361,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       itemsWithDividers.add(children[i]);
       if (i < children.length - 1) {
         itemsWithDividers.add(
-          const Padding(
+          Padding(
             padding: EdgeInsets.only(left: 56.0),
             child: Divider(height: 0.5, thickness: 0.5, color: _hairlineColor),
           ),
@@ -401,12 +407,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
             children: [
               Text(
                 title,
-                style: const TextStyle(fontSize: 12, color: _outline),
+                style: TextStyle(fontSize: 12, color: _outline),
               ),
               const SizedBox(height: 1),
               Text(
                 value,
-                style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: _textPrimary),
+                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: _textPrimary),
               ),
             ],
           ),
@@ -438,15 +444,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
               Expanded(
                 child: Text(
                   title,
-                  style: const TextStyle(fontSize: 15, color: _textPrimary),
+                  style: TextStyle(fontSize: 15, color: _textPrimary),
                 ),
               ),
               Text(
                 trailingText,
-                style: const TextStyle(fontSize: 14, color: _outline),
+                style: TextStyle(fontSize: 14, color: _outline),
               ),
               const SizedBox(width: 4),
-              const Icon(Icons.chevron_right, color: _outlineVariant, size: 18),
+              Icon(Icons.chevron_right, color: _outlineVariant, size: 18),
             ],
           ),
         ),
@@ -486,7 +492,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           onTap: () async {
             await Supabase.instance.client.auth.signOut();
           },
-          child: const Padding(
+          child: Padding(
             padding: EdgeInsets.symmetric(vertical: 14.0),
             child: Center(
               child: Text(

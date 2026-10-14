@@ -19,22 +19,24 @@ class _HomePageState extends State<HomePage> {
   int _currentIndex = 0;
 
   // --- PALETTE DE COULEURS EN MODE SOMBRE (iOS Dark Mode OLED) ---
-  static const Color _bgSurface = Color(0xFF000000); // Pure Black OLED
-  static const Color _cardBg = Color(0xFF1C1C1E); // Dark Drawer & Container
-  static const Color _cardElevatedBg = Color(0xFF2C2C2E); // Inner Items & Separators
+  bool get _darkMode => Theme.of(context).brightness == Brightness.dark;
 
-  // Accents iOS System Dark
-  static const Color _primary = Color(0xFF0A84FF); // Blue iOS Dark
-  static const Color _primaryContainer = Color(0xFF003063);
-  static const Color _tertiary = Color(0xFF30D158); // Green iOS Dark
-  static const Color _tertiaryContainer = Color(0xFF0C3B18);
-  static const Color _error = Color(0xFFFF453A); // Red iOS Dark
+  Color get _bgSurface => _darkMode ? const Color(0xFF000000) : const Color(0xFFFAF9FE);
+  Color get _cardBg => _darkMode ? const Color(0xFF1C1C1E) : Colors.white;
+  Color get _cardElevatedBg => _darkMode ? const Color(0xFF2C2C2E) : const Color(0xFFF4F3F8);
+  // Accents iOS System (Dynamique)
+  Color get _primary => const Color(0xFF0A84FF);
+  Color get _primaryContainer => _darkMode ? const Color(0xFF003063) : const Color(0xFFE5F0FF);
+  Color get _tertiary => const Color(0xFF30D158);
+  Color get _tertiaryContainer => _darkMode ? const Color(0xFF0C3B18) : const Color(0xFFE8F8EB);
+  Color get _error => const Color(0xFFFF453A);
+  Color get _errorContainer => _darkMode ? const Color(0xFF4A100D) : const Color(0xFFFFEBEA);
 
-  // Textes & Neutral Colors
-  static const Color _textPrimary = Colors.white;
-  static const Color _textSecondary = Color(0xFF8E8E93);
-  static const Color _outline = Color(0xFF636366);
-  static const Color _outlineVariant = Color(0xFF48484A);
+  // Textes & Neutral Colors (Dynamique)
+  Color get _textPrimary => _darkMode ? Colors.white : Colors.black;
+  Color get _textSecondary => const Color(0xFF8E8E93);
+  Color get _outline => _darkMode ? const Color(0xFF636366) : const Color(0xFF999999);
+  Color get _outlineVariant => _darkMode ? const Color(0xFF48484A) : const Color(0xFFD1D1D6);
 
   // Récupération des données du profil Supabase
   Future<Map<String, dynamic>?> _getProfileData() async {
@@ -95,7 +97,7 @@ class _HomePageState extends State<HomePage> {
           DashboardScreen(profile: profile),
           ProfileScreen(user: user, profile: profile),
           const NotificationsScreen(),
-          const SettingsScreen(),
+          SettingsScreen(profile: profile), // MODIFICATION ICI
           const SupportScreen(),
         ];
 
@@ -108,10 +110,10 @@ class _HomePageState extends State<HomePage> {
             elevation: 0,
             scrolledUnderElevation: 0,
             centerTitle: true,
-            iconTheme: const IconThemeData(color: _textPrimary),
+            iconTheme: IconThemeData(color: _textPrimary),
             title: Text(
               _getAppBarTitle(_currentIndex),
-              style: const TextStyle(
+              style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 18,
                 color: _textPrimary,
@@ -124,7 +126,7 @@ class _HomePageState extends State<HomePage> {
                 alignment: Alignment.center,
                 children: [
                   IconButton(
-                    icon: const Icon(Icons.notifications_outlined, color: _textPrimary, size: 22),
+                    icon: Icon(Icons.notifications_outlined, color: _textPrimary, size: 22),
                     onPressed: () => setState(() => _currentIndex = 2),
                   ),
                   Positioned(
@@ -160,7 +162,7 @@ class _HomePageState extends State<HomePage> {
                           ? NetworkImage(avatarUrl)
                           : null,
                       child: avatarUrl == null || avatarUrl.isEmpty
-                          ? const Icon(Icons.person, size: 16, color: _textSecondary)
+                          ? Icon(Icons.person, size: 16, color: _textSecondary)
                           : null,
                     ),
                   ),
@@ -219,7 +221,7 @@ class _HomePageState extends State<HomePage> {
                                       ? Image.network(avatarUrl, fit: BoxFit.cover)
                                       : Container(
                                     color: _cardElevatedBg,
-                                    child: const Icon(Icons.person, size: 30, color: _textSecondary),
+                                    child: Icon(Icons.person, size: 30, color: _textSecondary),
                                   ),
                                 ),
                               ),
@@ -274,7 +276,7 @@ class _HomePageState extends State<HomePage> {
                             ),
                           ),
                           const SizedBox(width: 6),
-                          const Icon(Icons.verified, color: _primary, size: 18),
+                          Icon(Icons.verified, color: _primary, size: 18),
                         ],
                       ),
                       const SizedBox(height: 2),
@@ -296,7 +298,7 @@ class _HomePageState extends State<HomePage> {
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: const [
+                          children: [
                             Row(
                               children: [
                                 CircleAvatar(radius: 4, backgroundColor: _tertiary),
@@ -397,7 +399,7 @@ class _HomePageState extends State<HomePage> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Row(
-                              children: const [
+                              children: [
                                 Icon(Icons.cloud_sync, color: _primary, size: 18),
                                 SizedBox(width: 6),
                                 Text(
@@ -411,14 +413,14 @@ class _HomePageState extends State<HomePage> {
                               ],
                             ),
                             const SizedBox(height: 4),
-                            const Text(
+                            Text(
                               'Sauvegarde automatique chiffrée de bout en bout opérationnelle.',
                               style: TextStyle(fontSize: 11, color: _textSecondary, height: 1.3),
                             ),
                             const SizedBox(height: 8),
                             ClipRRect(
                               borderRadius: BorderRadius.circular(4),
-                              child: const LinearProgressIndicator(
+                              child: LinearProgressIndicator(
                                 value: 0.78,
                                 minHeight: 4,
                                 backgroundColor: _cardBg,
@@ -432,7 +434,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
 
-                const Divider(height: 1, color: _cardElevatedBg, indent: 16, endIndent: 16),
+                Divider(height: 1, color: _cardElevatedBg, indent: 16, endIndent: 16),
 
                 // 3. Pied de Drawer : Déconnexion
                 Padding(
@@ -444,7 +446,7 @@ class _HomePageState extends State<HomePage> {
                         height: 44,
                         child: ElevatedButton.icon(
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF4A100D),
+                            backgroundColor: _errorContainer,
                             foregroundColor: _error,
                             elevation: 0,
                             shape: RoundedRectangleBorder(
@@ -456,15 +458,15 @@ class _HomePageState extends State<HomePage> {
                               context: context,
                               builder: (ctx) => AlertDialog(
                                 backgroundColor: _cardBg,
-                                title: const Text('Déconnexion', style: TextStyle(color: _textPrimary)),
-                                content: const Text(
+                                title: Text('Déconnexion', style: TextStyle(color: _textPrimary)),
+                                content: Text(
                                   'Souhaitez-vous vraiment fermer votre session Supabase ?',
                                   style: TextStyle(color: _textSecondary),
                                 ),
                                 actions: [
                                   TextButton(
                                     onPressed: () => Navigator.pop(ctx),
-                                    child: const Text('Annuler', style: TextStyle(color: _outline)),
+                                    child: Text('Annuler', style: TextStyle(color: _outline)),
                                   ),
                                   TextButton(
                                     onPressed: () async {
@@ -472,7 +474,7 @@ class _HomePageState extends State<HomePage> {
                                       Navigator.pop(context); // Fermer le drawer
                                       await Supabase.instance.client.auth.signOut();
                                     },
-                                    child: const Text('Déconnexion', style: TextStyle(color: _error, fontWeight: FontWeight.bold)),
+                                    child: Text('Déconnexion', style: TextStyle(color: _error, fontWeight: FontWeight.bold)),
                                   ),
                                 ],
                               ),
@@ -486,7 +488,7 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ),
                       const SizedBox(height: 8),
-                      const Text(
+                      Text(
                         'v2.4.0 (Flutter & Supabase)',
                         style: TextStyle(fontSize: 11, color: _outline, fontWeight: FontWeight.w500),
                       ),
@@ -505,7 +507,7 @@ class _HomePageState extends State<HomePage> {
 
           // BARRE DE NAVIGATION INFÉRIEURE iOS DARK MODE
           bottomNavigationBar: Container(
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               color: _bgSurface,
               border: Border(
                 top: BorderSide(color: _cardElevatedBg, width: 0.5),
@@ -516,9 +518,9 @@ class _HomePageState extends State<HomePage> {
                 navigationBarTheme: NavigationBarThemeData(
                   labelTextStyle: MaterialStateProperty.resolveWith((states) {
                     if (states.contains(MaterialState.selected)) {
-                      return const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: _primary);
+                      return TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: _primary);
                     }
-                    return const TextStyle(fontSize: 11, color: _textSecondary);
+                    return TextStyle(fontSize: 11, color: _textSecondary);
                   }),
                 ),
               ),
@@ -529,7 +531,7 @@ class _HomePageState extends State<HomePage> {
                 indicatorColor: _primaryContainer,
                 backgroundColor: _bgSurface,
                 elevation: 0,
-                destinations: const [
+                destinations: [
                   NavigationDestination(
                     icon: Icon(Icons.dashboard_outlined, size: 22, color: _textSecondary),
                     selectedIcon: Icon(Icons.dashboard, color: _primary, size: 22),
@@ -618,13 +620,13 @@ class _HomePageState extends State<HomePage> {
                 Container(
                   width: 5,
                   height: 5,
-                  decoration: const BoxDecoration(
+                  decoration: BoxDecoration(
                     color: _primary,
                     shape: BoxShape.circle,
                   ),
                 )
               else
-                const Icon(Icons.chevron_right, size: 16, color: _outline),
+                Icon(Icons.chevron_right, size: 16, color: _outline),
             ],
           ),
         ),

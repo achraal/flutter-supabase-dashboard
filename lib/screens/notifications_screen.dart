@@ -9,28 +9,32 @@ class NotificationsScreen extends StatefulWidget {
 }
 
 class _NotificationsScreenState extends State<NotificationsScreen> {
-  // --- PALETTE DE COULEURS EN MODE SOMBRE (iOS Dark Mode OLED) ---
-  static const Color _bgSurface = Color(0xFF000000); // Pure Black OLED
-  static const Color _cardBg = Color(0xFF1C1C1E); // Elevated Dark Card
-  static const Color _cardElevatedBg = Color(0xFF2C2C2E); // Segment & Inner Containers
+  // --- DÉTECTION DU THÈME ---
+  bool get _darkMode => Theme.of(context).brightness == Brightness.dark;
 
-  // Accents iOS System Dark
-  static const Color _primary = Color(0xFF0A84FF); // Blue iOS Dark
-  static const Color _primaryContainer = Color(0xFF003063);
-  static const Color _tertiary = Color(0xFF30D158); // Green iOS Dark
-  static const Color _tertiaryContainer = Color(0xFF0C3B18);
-  static const Color _secondary = Color(0xFF5E5CE6); // Purple/Indigo iOS Dark
-  static const Color _secondaryContainer = Color(0xFF252361);
-  static const Color _error = Color(0xFFFF453A); // Red iOS Dark
-  static const Color _errorContainer = Color(0xFF4A100D);
+  // --- PALETTE DE COULEURS DYNAMIQUE ---
+  Color get _bgSurface => _darkMode ? const Color(0xFF000000) : const Color(0xFFF2F2F7);
+  Color get _cardBg => _darkMode ? const Color(0xFF1C1C1E) : Colors.white;
+  Color get _cardElevatedBg => _darkMode ? const Color(0xFF2C2C2E) : const Color(0xFFE5E5EA);
 
-  // Textes & Neutral Colors
-  static const Color _textPrimary = Colors.white;
-  static const Color _textSecondary = Color(0xFF8E8E93);
-  static const Color _outline = Color(0xFF636366);
+  Color get _primary => const Color(0xFF0A84FF);
+  Color get _primaryContainer => _darkMode ? const Color(0xFF003063) : const Color(0xFFE5F0FF);
+
+  Color get _tertiary => const Color(0xFF30D158);
+  Color get _tertiaryContainer => _darkMode ? const Color(0xFF0C3B18) : const Color(0xFFE8F8EB);
+
+  Color get _secondary => const Color(0xFF5E5CE6);
+  Color get _secondaryContainer => _darkMode ? const Color(0xFF252361) : const Color(0xFFEBEBFA);
+
+  Color get _error => const Color(0xFFFF453A);
+  Color get _errorContainer => _darkMode ? const Color(0xFF4A100D) : const Color(0xFFFFEBEA);
+
+  Color get _textPrimary => _darkMode ? Colors.white : Colors.black;
+  Color get _textSecondary => const Color(0xFF8E8E93);
+  Color get _outline => _darkMode ? const Color(0xFF636366) : const Color(0xFFC1C6D7);
 
   // --- Gestion des états ---
-  int _selectedTabIndex = 0; // 0: Toutes, 1: Non lues, 2: Système
+  int _selectedTabIndex = 0;
   bool _keepArchives = true;
 
   late List<_NotificationModel> _notifications;
@@ -47,8 +51,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         isUnread: true,
         isSystem: false,
         icon: Icons.rocket_launch,
-        iconBg: _primaryContainer,
-        iconColor: _primary,
+        colorType: 'primary', // MODIFICATION
         tagText: 'Connecté',
         projectTag: 'Projet lié : dev_cloud',
       ),
@@ -60,8 +63,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         isUnread: true,
         isSystem: true,
         icon: Icons.shield,
-        iconBg: _errorContainer,
-        iconColor: _error,
+        colorType: 'error', // MODIFICATION
         actionLinkText: "Vérifier l'audit RLS",
       ),
       _NotificationModel(
@@ -72,8 +74,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         isUnread: true,
         isSystem: false,
         icon: Icons.lightbulb,
-        iconBg: _secondaryContainer,
-        iconColor: _secondary,
+        colorType: 'secondary', // MODIFICATION
       ),
       _NotificationModel(
         id: '4',
@@ -83,8 +84,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         isUnread: false,
         isSystem: true,
         icon: Icons.storage,
-        iconBg: _cardElevatedBg,
-        iconColor: _textSecondary,
+        colorType: 'neutral', // MODIFICATION
       ),
     ];
   }
@@ -160,7 +160,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       children: [
         Row(
           children: [
-            const Text(
+            Text(
               'Notifications',
               style: TextStyle(
                 fontSize: 30,
@@ -180,7 +180,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 ),
                 child: Text(
                   '$_unreadCount',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
                     color: _primary,
@@ -284,6 +284,27 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   }
 
   Widget _buildNotificationCard(_NotificationModel item) {
+    // AJOUT : Détermination dynamique de la couleur
+    Color iconBgColor;
+    Color iconFgColor;
+
+    switch (item.colorType) {
+      case 'primary':
+        iconBgColor = _primaryContainer;
+        iconFgColor = _primary;
+        break;
+      case 'error':
+        iconBgColor = _errorContainer;
+        iconFgColor = _error;
+        break;
+      case 'secondary':
+        iconBgColor = _secondaryContainer;
+        iconFgColor = _secondary;
+        break;
+      default:
+        iconBgColor = _cardElevatedBg;
+        iconFgColor = _textSecondary;
+    }
     return Opacity(
       opacity: item.isUnread ? 1.0 : 0.7,
       child: Container(
@@ -310,10 +331,10 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   width: 44,
                   height: 44,
                   decoration: BoxDecoration(
-                    color: item.iconBg,
+                    color: iconBgColor,
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: Icon(item.icon, color: item.iconColor, size: 24),
+                  child: Icon(item.icon, color: iconFgColor, size: 24), // MODIFICATION
                 ),
                 if (item.isUnread)
                   Positioned(
@@ -347,7 +368,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                             Flexible(
                               child: Text(
                                 item.title,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,
                                   color: _textPrimary,
@@ -367,7 +388,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                 ),
                                 child: Text(
                                   item.tagText!,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 11,
                                     fontWeight: FontWeight.bold,
                                     color: _tertiary,
@@ -381,7 +402,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                       const SizedBox(width: 6),
                       Text(
                         item.time,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 12,
                           color: _outline,
                         ),
@@ -391,7 +412,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   const SizedBox(height: 4),
                   Text(
                     item.description,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 14,
                       color: _textSecondary,
                       height: 1.3,
@@ -411,12 +432,12 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(Icons.check_circle,
+                          Icon(Icons.check_circle,
                               size: 14, color: _tertiary),
                           const SizedBox(width: 4),
                           Text(
                             item.projectTag!,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 11,
                               color: _textSecondary,
                             ),
@@ -436,14 +457,14 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                         children: [
                           Text(
                             item.actionLinkText!,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
                               color: _primary,
                             ),
                           ),
                           const SizedBox(width: 2),
-                          const Icon(Icons.arrow_forward,
+                          Icon(Icons.arrow_forward,
                               size: 14, color: _primary),
                         ],
                       ),
@@ -466,15 +487,15 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           Container(
             width: 64,
             height: 64,
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               color: _cardBg,
               shape: BoxShape.circle,
             ),
-            child: const Icon(Icons.notifications_paused,
+            child: Icon(Icons.notifications_paused,
                 size: 32, color: _outline),
           ),
           const SizedBox(height: 12),
-          const Text(
+          Text(
             'Toutes les notifications sont lues',
             style: TextStyle(
               fontSize: 17,
@@ -483,7 +504,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             ),
           ),
           const SizedBox(height: 4),
-          const Text(
+          Text(
             'Vous êtes parfaitement à jour avec vos événements et les déclencheurs Supabase.',
             textAlign: TextAlign.center,
             style: TextStyle(
@@ -524,13 +545,13 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                       color: _cardElevatedBg,
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: const Icon(Icons.inventory_2,
+                    child: Icon(Icons.inventory_2,
                         size: 20, color: _outline),
                   ),
                   const SizedBox(width: 12),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: const [
+                    children: [
                       Text(
                         'Conserver les archives',
                         style: TextStyle(
@@ -559,7 +580,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           ),
         ),
         const SizedBox(height: 12),
-        const Padding(
+        Padding(
           padding: EdgeInsets.symmetric(horizontal: 16.0),
           child: Text(
             'Les notifications prioritaires sont envoyées en direct depuis votre client Flutter via les webhooks Supabase Edge Functions.',
@@ -611,8 +632,7 @@ class _NotificationModel {
   bool isUnread;
   final bool isSystem;
   final IconData icon;
-  final Color iconBg;
-  final Color iconColor;
+  final String colorType; // MODIFICATION ICI
   final String? tagText;
   final String? projectTag;
   final String? actionLinkText;
@@ -625,8 +645,7 @@ class _NotificationModel {
     required this.isUnread,
     required this.isSystem,
     required this.icon,
-    required this.iconBg,
-    required this.iconColor,
+    required this.colorType, // MODIFICATION ICI
     this.tagText,
     this.projectTag,
     this.actionLinkText,

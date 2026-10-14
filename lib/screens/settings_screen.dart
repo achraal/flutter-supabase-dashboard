@@ -2,9 +2,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../login_page.dart';
+import '../main.dart';
 
 class SettingsScreen extends StatefulWidget {
-  const SettingsScreen({super.key});
+  final Map<String, dynamic>? profile; // AJOUT
+  const SettingsScreen({super.key, this.profile}); // MODIFICATION
 
   @override
   State<SettingsScreen> createState() => _SettingsScreenState();
@@ -15,7 +17,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   String _searchQuery = '';
 
   // États des réglages
-  bool _darkMode = true; // Mode sombre activé par défaut
+  bool get _darkMode => Theme.of(context).brightness == Brightness.dark;
   bool _pushNotifications = true;
   bool _biometrics = true;
   bool _offlineSync = true;
@@ -82,7 +84,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     final user = Supabase.instance.client.auth.currentUser;
-    final userEmail = user?.email ?? 'Alexandre Martin';
+    final userName = widget.profile?['name'] ?? widget.profile?['full_name'] ?? 'Alexandre Martin';
+    final userEmail = user?.email ?? widget.profile?['email'] ?? 'Identifiant non trouvé';
+    final avatarUrl = widget.profile?['avatar_url'] as String?;
 
     return Scaffold(
       backgroundColor: _bgSurface,
@@ -150,7 +154,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
             // 3. Fiche Profil / Identifiant Apple
             if (_matches(['profil', 'alexandre', 'compte', 'sécurité', 'email', userEmail])) ...[
-              _buildProfileCard(userEmail),
+              _buildProfileCard(userName, userEmail, avatarUrl),
               const SizedBox(height: 20),
             ],
 
@@ -167,7 +171,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     title: 'Mode sombre',
                     value: _darkMode,
                     onChanged: (val) {
-                      setState(() => _darkMode = val);
+                      globalDarkMode.value = val;
                       _showToast(val ? 'Mode sombre activé' : 'Mode clair activé', Icons.dark_mode);
                     },
                   ),
@@ -336,7 +340,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Widget _buildProfileCard(String email) {
+  Widget _buildProfileCard(String name, String email, String? avatarUrl) {
     return Container(
       decoration: BoxDecoration(
         color: _cardBg,
@@ -363,7 +367,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     CircleAvatar(
                       radius: 28,
                       backgroundColor: _cardElevatedBg,
-                      child: Icon(Icons.person, color: _textSecondary, size: 30),
+                      // AJOUT : Image de fond si l'URL existe
+                      backgroundImage: avatarUrl != null && avatarUrl.isNotEmpty
+                          ? NetworkImage(avatarUrl)
+                          : null,
+                      // AJOUT : Icône par défaut si pas d'image
+                      child: avatarUrl == null || avatarUrl.isEmpty
+                          ? Icon(Icons.person, color: _textSecondary, size: 30)
+                          : null,
                     ),
                     Positioned(
                       bottom: 0,
@@ -387,7 +398,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Alexandre Martin',
+                        name,
                         style: TextStyle(
                           fontSize: 17,
                           fontWeight: FontWeight.w600,

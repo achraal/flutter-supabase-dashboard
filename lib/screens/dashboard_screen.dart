@@ -1,34 +1,46 @@
 import 'package:flutter/material.dart';
 
-class DashboardScreen extends StatelessWidget {
+class DashboardScreen extends StatefulWidget {
   final Map<String, dynamic>? profile;
 
   const DashboardScreen({super.key, this.profile});
 
-  // --- PALETTE DE COULEURS EN MODE SOMBRE (iOS Dark Mode OLED) ---
-  static const Color _bgSurface = Color(0xFF000000); // Pure Black OLED
-  static const Color _cardBg = Color(0xFF1C1C1E); // Elevated Dark Card
-  static const Color _cardElevatedBg = Color(0xFF2C2C2E); // High-elevation Dark Container
+  @override
+  State<DashboardScreen> createState() => _DashboardScreenState();
+}
 
-  // Accents iOS System Dark
-  static const Color _primary = Color(0xFF0A84FF); // Blue iOS Dark
-  static const Color _primaryContainer = Color(0xFF003063); // Dark Primary Tint
-  static const Color _tertiary = Color(0xFF30D158); // Green iOS Dark
-  static const Color _tertiaryContainer = Color(0xFF0C3B18); // Dark Tertiary Tint
-  static const Color _secondary = Color(0xFF5E5CE6); // Purple/Indigo iOS Dark
-  static const Color _secondaryContainer = Color(0xFF252361); // Dark Secondary Tint
-  static const Color _error = Color(0xFFFF453A); // Red iOS Dark
-  static const Color _errorContainer = Color(0xFF4A100D); // Dark Error Tint
+class _DashboardScreenState extends State<DashboardScreen> {
+  // --- DÉTECTION DU THÈME ---
+  bool get _darkMode => Theme.of(context).brightness == Brightness.dark;
+
+  // --- PALETTE DE COULEURS DYNAMIQUE (Dark & Light) ---
+  Color get _bgSurface => _darkMode ? const Color(0xFF000000) : const Color(0xFFF2F2F7);
+  Color get _cardBg => _darkMode ? const Color(0xFF1C1C1E) : Colors.white;
+  Color get _cardElevatedBg => _darkMode ? const Color(0xFF2C2C2E) : const Color(0xFFE5E5EA);
+
+  // Accents iOS (Les couleurs principales restent les mêmes, mais les fonds changent)
+  Color get _primary => const Color(0xFF0A84FF);
+  Color get _primaryContainer => _darkMode ? const Color(0xFF003063) : const Color(0xFFE5F0FF);
+
+  Color get _tertiary => const Color(0xFF30D158);
+  Color get _tertiaryContainer => _darkMode ? const Color(0xFF0C3B18) : const Color(0xFFE8F8EB);
+
+  Color get _secondary => const Color(0xFF5E5CE6);
+  Color get _secondaryContainer => _darkMode ? const Color(0xFF252361) : const Color(0xFFEBEBFA);
+
+  Color get _error => const Color(0xFFFF453A);
+  Color get _errorContainer => _darkMode ? const Color(0xFF4A100D) : const Color(0xFFFFEBEA);
 
   // Textes & Lignes
-  static const Color _textPrimary = Colors.white;
-  static const Color _textSecondary = Color(0xFF8E8E93);
-  static const Color _dividerColor = Color(0xFF2C2C2E);
-  static const Color _outlineVariant = Color(0xFF48484A);
+  Color get _textPrimary => _darkMode ? Colors.white : Colors.black;
+  Color get _textSecondary => const Color(0xFF8E8E93); // Identique en clair/sombre sur iOS
+  Color get _dividerColor => _darkMode ? const Color(0xFF2C2C2E) : const Color(0xFFE5E5EA);
+  Color get _outlineVariant => _darkMode ? const Color(0xFF48484A) : const Color(0xFFD1D1D6);
 
   @override
   Widget build(BuildContext context) {
-    final name = profile?['name'] ?? profile?['full_name'] ?? "Alexandre";
+    // Attention ici : on ajoute "widget." avant profile car on est passé en StatefulWidget
+    final name = widget.profile?['name'] ?? widget.profile?['full_name'] ?? "Alexandre";
 
     return Scaffold(
       backgroundColor: _bgSurface,
@@ -83,7 +95,7 @@ class DashboardScreen extends StatelessWidget {
       children: [
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: const [
+          children: [
             Text(
               'MARDI 24 OCTOBRE',
               style: TextStyle(
@@ -107,7 +119,7 @@ class DashboardScreen extends StatelessWidget {
         ),
         Stack(
           children: [
-            const CircleAvatar(
+            CircleAvatar(
               radius: 22,
               backgroundColor: _cardElevatedBg,
               child: Icon(Icons.person, color: _textSecondary),
@@ -158,7 +170,7 @@ class DashboardScreen extends StatelessWidget {
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Row(
-                  children: const [
+                  children: [
                     CircleAvatar(radius: 4, backgroundColor: _tertiary),
                     SizedBox(width: 6),
                     Text(
@@ -173,7 +185,7 @@ class DashboardScreen extends StatelessWidget {
                 ),
               ),
               Row(
-                children: const [
+                children: [
                   Icon(Icons.cloud_done, size: 15, color: _tertiary),
                   SizedBox(width: 4),
                   Text(
@@ -187,7 +199,7 @@ class DashboardScreen extends StatelessWidget {
           const SizedBox(height: 12),
           Text(
             'Ravi de vous revoir, $name 👋',
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
               color: _textPrimary,
@@ -195,7 +207,7 @@ class DashboardScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 4),
-          const Text(
+          Text(
             'Votre espace Supabase est synchronisé en temps réel avec Paris (eu-west-3).',
             style: TextStyle(fontSize: 14, color: _textSecondary),
           ),
@@ -211,8 +223,8 @@ class DashboardScreen extends StatelessWidget {
                   shape: const StadiumBorder(),
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 ),
-                icon: const Icon(Icons.sync, size: 16, color: _primary),
-                label: const Text(
+                icon: Icon(Icons.sync, size: 16, color: _primary),
+                label: Text(
                   'Rafraîchir les tables',
                   style: TextStyle(
                     fontSize: 12,
@@ -221,7 +233,7 @@ class DashboardScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              const Text(
+              Text(
                 'Il y a 32s',
                 style: TextStyle(fontSize: 11, color: _textSecondary),
               ),
@@ -238,7 +250,7 @@ class DashboardScreen extends StatelessWidget {
       children: [
         Text(
           title,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
             color: _textPrimary,
@@ -255,7 +267,7 @@ class DashboardScreen extends StatelessWidget {
             ),
             child: Text(
               actionText,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
                 color: _primary,
@@ -394,7 +406,7 @@ class DashboardScreen extends StatelessWidget {
             children: [
               Text(
                 value,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 26,
                   fontWeight: FontWeight.bold,
                   color: _textPrimary,
@@ -402,7 +414,7 @@ class DashboardScreen extends StatelessWidget {
               ),
               Text(
                 title,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w500,
                   color: _textSecondary,
@@ -447,7 +459,7 @@ class DashboardScreen extends StatelessWidget {
             children: [
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
+                children: [
                   Text(
                     'Requêtes API & Latence',
                     style: TextStyle(fontSize: 13, color: _textSecondary),
@@ -470,7 +482,7 @@ class DashboardScreen extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Row(
-                  children: const [
+                  children: [
                     Icon(Icons.calendar_today, size: 12, color: _textSecondary),
                     SizedBox(width: 4),
                     Text(
@@ -538,12 +550,12 @@ class DashboardScreen extends StatelessWidget {
               }).toList(),
             ),
           ),
-          const Divider(height: 24, color: _dividerColor),
+          Divider(height: 24, color: _dividerColor),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Row(
-                children: const [
+                children: [
                   CircleAvatar(radius: 4, backgroundColor: _primary),
                   SizedBox(width: 6),
                   Text(
@@ -553,7 +565,7 @@ class DashboardScreen extends StatelessWidget {
                 ],
               ),
               Row(
-                children: const [
+                children: [
                   Icon(Icons.arrow_upward, size: 13, color: _tertiary),
                   Text(
                     '+18.4% vs s-1',
@@ -595,7 +607,7 @@ class DashboardScreen extends StatelessWidget {
             iconBg: _primaryContainer,
             iconColor: _primary,
           ),
-          const Divider(height: 1, indent: 56, color: _dividerColor),
+          Divider(height: 1, indent: 56, color: _dividerColor),
           _buildActivityItem(
             title: 'Sauvegarde snapshot',
             subtitle: 'PostgreSQL 15.1 · 1.4 Go',
@@ -604,7 +616,7 @@ class DashboardScreen extends StatelessWidget {
             iconBg: _tertiaryContainer,
             iconColor: _tertiary,
           ),
-          const Divider(height: 1, indent: 56, color: _dividerColor),
+          Divider(height: 1, indent: 56, color: _dividerColor),
           _buildActivityItem(
             title: 'Edge Function déclenchée',
             subtitle: 'send-welcome-push (31ms)',
@@ -646,7 +658,7 @@ class DashboardScreen extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
                     color: _textPrimary,
@@ -654,7 +666,7 @@ class DashboardScreen extends StatelessWidget {
                 ),
                 Text(
                   subtitle,
-                  style: const TextStyle(fontSize: 13, color: _textSecondary),
+                  style: TextStyle(fontSize: 13, color: _textSecondary),
                 ),
               ],
             ),
@@ -664,10 +676,10 @@ class DashboardScreen extends StatelessWidget {
             children: [
               Text(
                 time,
-                style: const TextStyle(fontSize: 11, color: _textSecondary),
+                style: TextStyle(fontSize: 11, color: _textSecondary),
               ),
               const SizedBox(height: 2),
-              const Icon(Icons.chevron_right, size: 16, color: _outlineVariant),
+              Icon(Icons.chevron_right, size: 16, color: _outlineVariant),
             ],
           ),
         ],
@@ -699,7 +711,7 @@ class DashboardScreen extends StatelessWidget {
                 height: 32,
                 child: Stack(
                   children: [
-                    const CircleAvatar(
+                    CircleAvatar(
                       radius: 16,
                       backgroundColor: _cardElevatedBg,
                     ),
@@ -710,7 +722,7 @@ class DashboardScreen extends StatelessWidget {
                         backgroundColor: Colors.grey.shade800,
                       ),
                     ),
-                    const Positioned(
+                    Positioned(
                       left: 28,
                       child: CircleAvatar(
                         radius: 16,
@@ -731,7 +743,7 @@ class DashboardScreen extends StatelessWidget {
               const SizedBox(width: 12),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
+                children: [
                   Text(
                     'Équipe Core Dev',
                     style: TextStyle(
@@ -756,7 +768,7 @@ class DashboardScreen extends StatelessWidget {
               shape: const StadiumBorder(),
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             ),
-            child: const Text(
+            child: Text(
               'Inviter',
               style: TextStyle(
                 fontSize: 13,

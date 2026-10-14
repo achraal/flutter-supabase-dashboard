@@ -12,30 +12,31 @@ class _SupportScreenState extends State<SupportScreen> {
   String _searchQuery = '';
   int? _selectedCategoryIndex;
 
-  // --- PALETTE DE COULEURS EN MODE SOMBRE (iOS Dark Mode OLED) ---
-  static const Color _bgSurface = Color(0xFF000000); // Pure Black OLED
-  static const Color _cardBg = Color(0xFF1C1C1E); // Elevated Dark Card
-  static const Color _cardElevatedBg = Color(0xFF2C2C2E); // High-elevation Dark Container
+  // --- DÉTECTION DU THÈME ---
+  bool get _darkMode => Theme.of(context).brightness == Brightness.dark;
 
-  // Accents iOS System Dark
-  static const Color _primary = Color(0xFF0A84FF); // Blue iOS Dark
-  static const Color _primaryContainer = Color(0xFF003063); // Dark Primary Tint
-  static const Color _tertiary = Color(0xFF30D158); // Green iOS Dark
-  static const Color _tertiaryContainer = Color(0xFF0C3B18); // Dark Tertiary Tint
-  static const Color _secondary = Color(0xFF5E5CE6); // Purple/Indigo iOS Dark
-  static const Color _secondaryContainer = Color(0xFF252361); // Dark Secondary Tint
-  static const Color _error = Color(0xFFFF453A); // Red iOS Dark
-  static const Color _errorContainer = Color(0xFF4A100D); // Dark Error Tint
+  // --- PALETTE DE COULEURS DYNAMIQUE ---
+  Color get _bgSurface => _darkMode ? const Color(0xFF000000) : const Color(0xFFF2F2F7);
+  Color get _cardBg => _darkMode ? const Color(0xFF1C1C1E) : Colors.white;
+  Color get _cardElevatedBg => _darkMode ? const Color(0xFF2C2C2E) : const Color(0xFFE5E5EA);
 
-  // Textes & Neutral Colors
-  static const Color _textPrimary = Colors.white;
-  static const Color _textSecondary = Color(0xFF8E8E93);
-  static const Color _outline = Color(0xFF636366);
-  static const Color _outlineVariant = Color(0xFF48484A);
-  static const Color _hairlineColor = Color(0xFF2C2C2E);
+  Color get _primary => const Color(0xFF0A84FF);
+  Color get _primaryContainer => _darkMode ? const Color(0xFF003063) : const Color(0xFFE5F0FF);
+  Color get _tertiary => const Color(0xFF30D158);
+  Color get _tertiaryContainer => _darkMode ? const Color(0xFF0C3B18) : const Color(0xFFE8F8EB);
+  Color get _secondary => const Color(0xFF5E5CE6);
+  Color get _secondaryContainer => _darkMode ? const Color(0xFF252361) : const Color(0xFFEBEBFA);
+  Color get _error => const Color(0xFFFF453A);
+  Color get _errorContainer => _darkMode ? const Color(0xFF4A100D) : const Color(0xFFFFEBEA);
+
+  Color get _textPrimary => _darkMode ? Colors.white : Colors.black;
+  Color get _textSecondary => const Color(0xFF8E8E93);
+  Color get _outline => _darkMode ? const Color(0xFF636366) : const Color(0xFF8E8E93);
+  Color get _outlineVariant => _darkMode ? const Color(0xFF48484A) : const Color(0xFFD1D1D6);
+  Color get _hairlineColor => _darkMode ? const Color(0xFF2C2C2E) : const Color(0xFFE5E5EA);
 
   // --- Données de la FAQ ---
-  final List<_FaqItem> _faqItems = [
+  List<_FaqItem> get _faqItems => [
     _FaqItem(
       question: 'Comment réinitialiser mon mot de passe ?',
       answer:
@@ -97,7 +98,7 @@ class _SupportScreenState extends State<SupportScreen> {
         behavior: SnackBarBehavior.floating,
         margin: const EdgeInsets.only(bottom: 20, left: 20, right: 20),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-        backgroundColor: const Color(0xFF2C2C2E),
+        backgroundColor: _darkMode ? const Color(0xFF2C2C2E) : const Color(0xFF2F3034),
         content: Row(
           children: [
             Icon(icon, color: _tertiary, size: 20),
@@ -143,7 +144,7 @@ class _SupportScreenState extends State<SupportScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
+                Text(
                   'Aide & Support',
                   style: TextStyle(
                     fontSize: 32,
@@ -159,7 +160,7 @@ class _SupportScreenState extends State<SupportScreen> {
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Row(
-                    children: const [
+                    children: [
                       CircleAvatar(radius: 4, backgroundColor: _tertiary),
                       SizedBox(width: 6),
                       Text(
@@ -183,18 +184,18 @@ class _SupportScreenState extends State<SupportScreen> {
               child: TextField(
                 controller: _searchController,
                 onChanged: (val) => setState(() => _searchQuery = val.trim().toLowerCase()),
-                style: const TextStyle(fontSize: 15, color: _textPrimary),
+                style: TextStyle(fontSize: 15, color: _textPrimary),
                 decoration: InputDecoration(
                   hintText: 'Rechercher une question, une erreur...',
-                  hintStyle: const TextStyle(color: _outline, fontSize: 14),
-                  prefixIcon: const Icon(Icons.search, color: _outline, size: 20),
+                  hintStyle: TextStyle(color: _outline, fontSize: 14),
+                  prefixIcon: Icon(Icons.search, color: _outline, size: 20),
                   suffixIcon: _searchQuery.isNotEmpty
                       ? GestureDetector(
                     onTap: () {
                       _searchController.clear();
                       setState(() => _searchQuery = '');
                     },
-                    child: const Icon(Icons.cancel, color: _outline, size: 18),
+                    child: Icon(Icons.cancel, color: _outline, size: 18),
                   )
                       : null,
                   border: InputBorder.none,
@@ -309,7 +310,7 @@ class _SupportScreenState extends State<SupportScreen> {
       padding: const EdgeInsets.only(left: 16.0),
       child: Text(
         title,
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 12,
           fontWeight: FontWeight.bold,
           color: _outline,
@@ -359,7 +360,7 @@ class _SupportScreenState extends State<SupportScreen> {
                     ),
                     title: Text(
                       item.question,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
                         color: _textPrimary,
@@ -368,7 +369,7 @@ class _SupportScreenState extends State<SupportScreen> {
                     children: [
                       Text(
                         item.answer,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 14,
                           color: _textSecondary,
                           height: 1.4,
@@ -378,7 +379,7 @@ class _SupportScreenState extends State<SupportScreen> {
                   ),
                 ),
                 if (index < items.length - 1)
-                  const Padding(
+                  Padding(
                     padding: EdgeInsets.only(left: 56.0),
                     child: Divider(height: 0.5, thickness: 0.5, color: _hairlineColor),
                   ),
@@ -396,7 +397,7 @@ class _SupportScreenState extends State<SupportScreen> {
       itemsWithDividers.add(children[i]);
       if (i < children.length - 1) {
         itemsWithDividers.add(
-          const Padding(
+          Padding(
             padding: EdgeInsets.only(left: 56.0),
             child: Divider(height: 0.5, thickness: 0.5, color: _hairlineColor),
           ),
@@ -455,16 +456,16 @@ class _SupportScreenState extends State<SupportScreen> {
                   children: [
                     Text(
                       title,
-                      style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: _textPrimary),
+                      style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: _textPrimary),
                     ),
                     Text(
                       subtitle,
-                      style: const TextStyle(fontSize: 12, color: _textSecondary),
+                      style: TextStyle(fontSize: 12, color: _textSecondary),
                     ),
                   ],
                 ),
               ),
-              const Icon(Icons.chevron_right, color: _outlineVariant, size: 20),
+              Icon(Icons.chevron_right, color: _outlineVariant, size: 20),
             ],
           ),
         ),
@@ -480,7 +481,7 @@ class _SupportScreenState extends State<SupportScreen> {
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
-        children: const [
+        children: [
           Icon(Icons.search_off, size: 36, color: _outline),
           SizedBox(height: 8),
           Text(
